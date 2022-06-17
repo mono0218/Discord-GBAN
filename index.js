@@ -7,6 +7,23 @@ const DiscordJS = require('discord.js')
 const { GuildScheduledEvent } = require("discord.js");
 const mongoose = require('mongoose');
 const profileModel = require('./profileSchema.js');
+const log4js = require('log4js')
+
+const logger = log4js.getLogger();
+require('date-utils');
+logger.level = 'trace';
+
+var dt = new Date();
+var formatted = dt.toFormat("YYYYMMDDHH24MISS");
+
+log4js.configure({
+    appenders : {
+    system : {type : 'file', filename : formatted + '.log'}
+    },
+    categories : {
+    default : {appenders : ['system'], level : 'trace'},
+    }
+});
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_MESSAGES],
@@ -18,9 +35,11 @@ mongoose
     })
     .then(() => {
         console.log('データベースに接続しました');
+        logger.debug('データーベースに接続しました');
     })
     .catch((error) => {
         console.log('エラー: データーベースに接続できません'); //エラー出力
+        logger.debug('エラー: データーベースに接続できません');
     });
 
 
@@ -28,6 +47,7 @@ client.once("ready", () => {
 
 
     console.log(process.env.BOTNAME  + " is online");
+    console.log(formatted)
 
     const guildId = '986942977681285131'
     const guild = client.guilds.cache.get(guildId)
@@ -120,6 +140,7 @@ client.on('interactionCreate', async(interaction) => {
             g.members.ban(options.getString('id')).catch(error => {
                 if (error.code !== 403) {
                     console.error('エラーメッセージ:'+ g.name +'でbanできませんでした. ' +'ban該当ユーザー: ' + options.getString('id')+ '   実行ユーザーID: '+interaction.user.id);
+                    logger.debug('エラーメッセージ:'+ g.name +'でbanできませんでした. ' +'ban該当ユーザー: ' + options.getString('id')+ '   実行ユーザーID: '+interaction.user.id);
                 }
             })
         })
@@ -132,8 +153,9 @@ client.on('interactionCreate', async(interaction) => {
         profile.save();
 
         console.log('データベースに保存しました: ban該当ユーザーID: ' + options.getString('id') + '   実行ユーザーID: '+ interaction.user.id); //コンソールに出力
+        logger.debug('データベースに保存しました: ban該当ユーザーID: ' + options.getString('id') + '   実行ユーザーID: '+ interaction.user.id)
         interaction.reply({
-            content: '成功しました',
+            content: '実行しました',
         })
     }
 })
@@ -164,16 +186,19 @@ client.on('interactionCreate', async(interaction) => {
                     g.members.unban(options.getString('id-remove')).catch(error => {
                         if (error.code !== 404) {
                             console.error('エラーメッセージ:'+ g.name +'でbanを解除できませんでした.' +'解除該当ユーザーID: ' + options.getString('id-remove') + '   実行ユーザーID: '+interaction.user.id);
+                            logger.debug('エラーメッセージ:'+ g.name +'でbanを解除できませんでした.' +'解除該当ユーザーID: ' + options.getString('id-remove') + '   実行ユーザーID: '+interaction.user.id)
                         }
                     })// メンバーをBAN
         })
         console.log("BAN解除に成功しました"); // 成功したらコンソールに出す
+        logger.debug("BAN解除に成功しました")
         const profile = await profileModel.remove({
             name: options.getString('id-remove'), 
         })
         console.log('データベースから削除しました: 解除該当ユーザーID: ' + options.getString('id-remove')+ '   実行ユーザーID: '+interaction.user.id); //コンソールに出力
+        logger.debug('データベースから削除しました: 解除該当ユーザーID: ' + options.getString('id-remove')+ '   実行ユーザーID: '+interaction.user.id)
         interaction.reply({
-            content: '成功しました',
+            content: '実行しました',
         })
     }
 })
