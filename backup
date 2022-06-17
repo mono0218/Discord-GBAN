@@ -1,0 +1,13 @@
+const profileData = await profileModel.findOne({ _id: interaction.user.id });
+    if (!profileData) {
+        const profile = await profileModel.create({
+            _id: interaction.user.id, //ユーザーID
+            name: options.getString('id'), //ユーザーネーム
+            avatar: options.getString('why'), //アバター
+        });
+        profile.save();
+        console.log('データベースに保存したよ: ' + interaction.user.tag); //一応ログとしてコンソールに出力
+}
+
+
+console.error('エラーメッセージ:'+ g.name +'で削除できませんでした.' +'解除該当ユーザーID: ' + options.getString('id-remove') + '   実行ユーザーID: '+interaction.user.id);
