@@ -2,9 +2,8 @@ require("dotenv").config();
 const fs = require("fs");
 const { REST } = require("@discordjs/rest");
 const { Route } = require("discord-api-types/v9");
-const { Client, Intents ,Collection } = require("discord.js");
-const DiscordJS = require('discord.js')
-const { GuildScheduledEvent } = require("discord.js");
+const { Client, Intents ,Collection  ,GuildScheduledEvent} = require("discord.js");
+const DiscordJS = require("discord.js");
 const mongoose = require('mongoose');
 const profileModel = require('./profileSchema.js');
 const log4js = require('log4js')
@@ -38,8 +37,8 @@ mongoose
         logger.debug('データーベースに接続しました');
     })
     .catch((error) => {
-        console.log('エラー: データーベースに接続できません'); //エラー出力
-        logger.debug('エラー: データーベースに接続できません');
+        console.error('エラー: データーベースに接続できません'); //エラー出力
+        logger.error('エラー: データーベースに接続できません');
     });
 
 
@@ -140,7 +139,7 @@ client.on('interactionCreate', async(interaction) => {
             g.members.ban(options.getString('id')).catch(error => {
                 if (error.code !== 403) {
                     console.error('エラーメッセージ:'+ g.name +'でbanできませんでした. ' +'ban該当ユーザー: ' + options.getString('id')+ '   実行ユーザーID: '+interaction.user.id);
-                    logger.debug('エラーメッセージ:'+ g.name +'でbanできませんでした. ' +'ban該当ユーザー: ' + options.getString('id')+ '   実行ユーザーID: '+interaction.user.id);
+                    logger.errot('エラーメッセージ:'+ g.name +'でbanできませんでした. ' +'ban該当ユーザー: ' + options.getString('id')+ '   実行ユーザーID: '+interaction.user.id);
                 }
             })
         })
@@ -158,26 +157,6 @@ client.on('interactionCreate', async(interaction) => {
             content: '実行しました',
         })
     }
-})
-
-client.on('interactionCreate', async(interaction) => {
-    if(!interaction.isCommand()){
-        return
-    }
-
-    const { commandName, options } = interaction
-
-    if (commandName ==='ping') {
-        interaction.reply({
-            content:'保存しました', 
-        })
-    }
-
-    if (commandName ==='help') {
-        interaction.reply({
-            content:'/gban:このbotが入っている全サーバーでbanすることができます',
-        })
-    }
 
     if (commandName ==='gban-remove'){
         const gbanIdremove = options.getString('id-remove')//idが一致するユーザーをデーターベースから削除
@@ -186,7 +165,7 @@ client.on('interactionCreate', async(interaction) => {
                     g.members.unban(options.getString('id-remove')).catch(error => {
                         if (error.code !== 404) {
                             console.error('エラーメッセージ:'+ g.name +'でbanを解除できませんでした.' +'解除該当ユーザーID: ' + options.getString('id-remove') + '   実行ユーザーID: '+interaction.user.id);
-                            logger.debug('エラーメッセージ:'+ g.name +'でbanを解除できませんでした.' +'解除該当ユーザーID: ' + options.getString('id-remove') + '   実行ユーザーID: '+interaction.user.id)
+                            logger.error('エラーメッセージ:'+ g.name +'でbanを解除できませんでした.' +'解除該当ユーザーID: ' + options.getString('id-remove') + '   実行ユーザーID: '+interaction.user.id)
                         }
                     })// メンバーをBAN
         })
